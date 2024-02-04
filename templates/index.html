@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #chat-container {
+            width: 400px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #chat-header {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #chat-messages {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .user-message, .bot-message {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .user-message {
+            background-color: #4CAF50;
+            color: #fff;
+            align-self: flex-end;
+        }
+
+        .bot-message {
+            background-color: #f0f0f0;
+            color: #333;
+            align-self: flex-start;
+        }
+
+        #user-input {
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #ccc;
+        }
+
+        #user-input input {
+            flex-grow: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        #user-input button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-header">Chatbot</div>
+        <div id="chat-messages">
+            <!-- Chat messages will be displayed here -->
+        </div>
+        <div id="user-input">
+            <input type="text" id="user-message-input" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            var userMessageInput = document.getElementById('user-message-input');
+            var userMessage = userMessageInput.value;
+
+            // Append user message to chat messages
+            appendUserMessage(userMessage);
+
+            // Clear the input field
+            userMessageInput.value = '';
+
+            // Send the user message to the server for processing
+            sendUserMessageToServer(userMessage);
+        }
+
+        function appendUserMessage(message) {
+            var chatMessages = document.getElementById('chat-messages');
+            var userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'user-message';
+            userMessageDiv.textContent = message;
+            chatMessages.appendChild(userMessageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+        }
+
+        function appendBotMessage(message) {
+            var chatMessages = document.getElementById('chat-messages');
+            var botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'bot-message';
+            botMessageDiv.textContent = message;
+            chatMessages.appendChild(botMessageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+        }
+
+        function sendUserMessageToServer(message) {
+            // Send an AJAX request to the server (Flask) to get the bot's response
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/chat', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Parse the JSON response from the server
+                    var jsonResponse = JSON.parse(xhr.responseText);
+                    var botResponse = jsonResponse.bot_response;
+
+                    // Append the bot's response to chat messages
+                    appendBotMessage(botResponse);
+                }
+            };
+            // Send the user message to the server
+            xhr.send('user_message=' + encodeURIComponent(message));
+        }
+    </script>
+</body>
+</html>
