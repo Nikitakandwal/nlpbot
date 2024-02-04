@@ -30,6 +30,4 @@ def chat():
     return jsonify({'bot_response': bot_response})
 
 if __name__ == '__main__':
-    # Use 0.0.0.0 to listen on all network interfaces
-    # Use a port other than 5000 if needed (e.g., 8000)
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True)
