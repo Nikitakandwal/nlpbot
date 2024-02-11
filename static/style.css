@@ -1,0 +1,62 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+.chat-container {
+    max-width: 600px;
+    margin: 20px auto;
+    height: 80vh; /* Set height to 80% of viewport height */
+}
+
+.chat-box {
+    overflow-y: auto;
+    max-height: calc(100% - 40px); /* Set max-height to 100% - height of input container */
+}
+
+.message {
+    max-width: 80%;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    clear: both;
+}
+
+.bot-message {
+    background-color: #d3e2fc;
+    float: left;
+}
+
+.user-message {
+    background-color: #e1f7d5;
+    float: right;
+}
+
+.input-container {
+    padding: 10px;
+    border-top: 1px solid #ccc; /* Add a border to separate input container from chat box */
+}
+
+#job-domain-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#job-domain-list li {
+    margin-bottom: 5px;
+}
+
+#job-domain-list label {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+#job-domain-list label:hover {
+    background-color: #0056b3;
+}
