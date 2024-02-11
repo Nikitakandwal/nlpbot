@@ -123,13 +123,22 @@ def chat():
     bot_response = "I'm sorry, I didn't understand that."
 
     # Handling specific queries
-    if user_message.lower() == 'hello':
+    if user_message.lower() in ['hello','hi','Hi','Hello','hey' ,'Hey','heyy','he','hii','hiii','Hii','Hiii','heloo','helloo','hellooo','Heloo','Helloo','Hellooo','Heyy','HELLO','HI','HII', 'HELLOO','HEY','HEYY','HE','HIII','HELOO','HELLOO','HELLOOO','HEYYY']:
         bot_response = "Hello! Select which domain you are interested to work in:\n1. Marketing\n2. Software Developer\n3. Architect\n4. Management\n5. Data Analyst/Scientist"
         # Update conversation state
         conversation_state['prompt_domain_selection'] = True
-    elif user_message.lower() in ['marketing', 'software developer', 'architect', 'management', 'data analyst/scientist']:
+    elif user_message.lower() in ['1', 'marketing', '2', 'software developer', '3', 'architect', '4', 'management', '5', 'data analyst/scientist']:
+     
+     
+     if user_message.isdigit():
+        # Convert number to corresponding domain
+        domains = ["Marketing", "Software Developer", "Architect", "Management", "Data Analyst/Scientist"]
+        selected_domain = domains[int(user_message) - 1]
+     else:
         selected_domain = user_message.title()
-        bot_response = f"You have selected '{selected_domain}' domain. Please provide the skills you know in this domain, separated by commas."
+
+     bot_response = f"You have selected '{selected_domain}' domain. Please provide the skills you know in this domain, separated by commas."
+
     elif selected_domain:
         skills[selected_domain] = [skill.strip() for skill in user_message.split(',')]
         bot_response = f"Thank you for providing your skills in '{selected_domain}' domain.\n\nHere are some jobs available in '{selected_domain}':\n\n"
