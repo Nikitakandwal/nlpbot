@@ -1,11 +1,6 @@
 from flask import Flask, render_template, request, jsonify
-import datetime
 
 app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return render_template('index.html')
 
 # Global variable to track conversation state
 conversation_state = {}
@@ -13,13 +8,16 @@ conversation_state = {}
 # Global variable to store user-selected domain
 selected_domain = None
 
+# Global variable to store user-selected skills
+selected_skills = []
+
 # Global variable to store skills for each domain
 skills = {
-    "Marketing": [],
-    "Software Developer": [],
-    "Architect": [],
-    "Management": [],
-    "Data Analyst/Scientist": []
+    "Marketing": ["Digital Marketing", "SEO", "Social Media Marketing", "Analytics", "Content Creation"],
+    "Software Developer": ["iOS Development", "Android Development", "Mobile UI/UX Design", "API Integration", "Performance Optimization"],
+    "Architect": ["System Design", "Enterprise Architecture", "Decision Making"],
+    "Management": ["Project Management", "Budget Management", "Leadership", "Time Management", "Problem Solving"],
+    "Data Analyst/Scientist": ["Data Analysis", "Statistical Analysis", "Reporting", "Problem Solving", "Attention to Detail"]
 }
 
 # Jobs data
@@ -113,9 +111,15 @@ jobs_data = {
     ]
 }
 
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+ 
+
 @app.route('/chat', methods=['POST'])
 def chat():
-    global selected_domain
+    global selected_domain, selected_skills
 
     user_message = request.form.get('user_message')
 
@@ -123,38 +127,85 @@ def chat():
     bot_response = "I'm sorry, I didn't understand that."
 
     # Handling specific queries
-    if user_message.lower() in ['hello','hi','Hi','Hello','hey' ,'Hey','heyy','he','hii','hiii','Hii','Hiii','heloo','helloo','hellooo','Heloo','Helloo','Hellooo','Heyy','HELLO','HI','HII', 'HELLOO','HEY','HEYY','HE','HIII','HELOO','HELLOO','HELLOOO','HEYYY']:
-        bot_response = "Hello! Select which domain you are interested to work in:\n1. Marketing\n2. Software Developer\n3. Architect\n4. Management\n5. Data Analyst/Scientist"
+    if user_message.lower() in ['hello', 'hi']:
+        bot_response = "Hello! Select which domain you are interested to work in:"
         # Update conversation state
         conversation_state['prompt_domain_selection'] = True
-    elif user_message.lower() in ['1', 'marketing', '2', 'software developer', '3', 'architect', '4', 'management', '5', 'data analyst/scientist']:
-     
-     
-     if user_message.isdigit():
-        # Convert number to corresponding domain
-        domains = ["Marketing", "Software Developer", "Architect", "Management", "Data Analyst/Scientist"]
-        selected_domain = domains[int(user_message) - 1]
-     else:
-        selected_domain = user_message.title()
+    elif conversation_state.get('prompt_domain_selection'):
+        if user_message.isdigit():
+            # Convert number to corresponding domain
+            domains = ["Marketing", "Software Developer", "Architect", "Management", "Data Analyst/Scientist"]
+            selected_domain = domains[int(user_message) - 1]
+        else:
+            selected_domain = user_message.title()
 
-     bot_response = f"You have selected '{selected_domain}' domain. Please provide the skills you know in this domain, separated by commas."
+        # Get skills for the selected domain
+        domain_skills = skills.get(selected_domain, [])
+        if domain_skills:
+            bot_response = f"Here are the skills required in '{selected_domain}':\n\n"
+            for skill in domain_skills:
+                # Generate HTML checkboxes for each skill
+                bot_response += f'<input type="checkbox" class="skill-option" value="{skill}"> {skill}<br>'
+            # Add a submit button after listing skills
+            bot_response += '<button id="submit-skills">Submit</button>'
+        else:
+            # Don't display the message if no skills are found
+            bot_response = ""
 
-    elif selected_domain:
-        skills[selected_domain] = [skill.strip() for skill in user_message.split(',')]
-        bot_response = f"Thank you for providing your skills in '{selected_domain}' domain.\n\nHere are some jobs available in '{selected_domain}':\n\n"
-        jobs = jobs_data.get(selected_domain, [])
-        if jobs:
-            for job in jobs:
+        # Update conversation state
+        conversation_state['selected_domain'] = selected_domain
+
+    elif 'selected_domain' in conversation_state:
+        selected_domain = conversation_state['selected_domain']
+        if 'selected_skills' in conversation_state:
+            selected_skills = conversation_state['selected_skills']
+            # Get jobs for the selected domain
+            domain_jobs = jobs_data.get(selected_domain, [])
+            if domain_jobs:
+                bot_response = f"Here are the available jobs in '{selected_domain}':\n\n"
+                for job in domain_jobs:
+                    bot_response += f"Job Title: {job['Job Title']}\n"
+                    bot_response += f"Responsibilities: {job['Responsibilities']}\n"
+                    bot_response += f"Qualifications: {job['Qualifications']}\n"
+                    bot_response += f"Openings: {job['Openings']}\n\n"
+            else:
+                bot_response = f"No jobs found for '{selected_domain}'."
+        else:
+            bot_response = "Please select your skills first."
+
+    return jsonify({'bot_response': bot_response})
+
+
+
+@app.route('/submit_skills', methods=['POST'])
+def submit_skills():
+    global selected_skills
+    selected_skills = request.json.get('selected_skill', [])
+    conversation_state['selected_skills'] = selected_skills
+    
+    # Retrieve the selected domain from conversation state
+    selected_domain = conversation_state.get('selected_domain')
+
+    if selected_domain:
+        # Get jobs for the selected domain
+        domain_jobs = jobs_data.get(selected_domain, [])
+        if domain_jobs:
+            bot_response = f"Here are the available jobs in '{selected_domain}':\n\n"
+            for job in domain_jobs:
                 bot_response += f"Job Title: {job['Job Title']}\n"
                 bot_response += f"Responsibilities: {job['Responsibilities']}\n"
                 bot_response += f"Qualifications: {job['Qualifications']}\n"
-                bot_response += f"Openings: {job['Openings']}\n"
-                bot_response += f"Skills Required: {', '.join(job['Skills Required'])}\n\n"
+                bot_response += f"Openings: {job['Openings']}\n\n"
         else:
-            bot_response += "No jobs found for this domain."
-        selected_domain = None
+            bot_response = f"No jobs found for '{selected_domain}'."
+    else:
+        bot_response = "Please select your skills first."
 
-    return jsonify({'bot_response': bot_response, 'selected_domain': selected_domain, 'skills': skills})
+    return jsonify({'bot_response': bot_response})
+
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

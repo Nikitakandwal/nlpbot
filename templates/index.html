@@ -1,96 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+    
+   
+   <style>
+    body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
 
-        #chat-container {
-            width: 400px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
+#chat-container {
+    width: 90%;
+    max-width: 400px;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
 
-        #chat-header {
-            background-color: #4CAF50;
-            color: #fff;
-            padding: 10px;
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-        }
+#chat-header {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 2px solid #368c3e;
+    border-radius: 10px 10px 0 0;
+}
 
-        #chat-messages {
-            flex-grow: 1;
-            padding: 15px;
-            overflow-y: auto;
-        }
+#chat-header img {
+    width: 30px;
+    margin-right: 10px;
+}
 
-        .user-message, .bot-message {
-            margin: 10px;
-            padding: 10px;
-            border-radius: 8px;
-        }
+#chat-messages {
+    flex-grow: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
 
-        .user-message {
-            background-color: #4CAF50;
-            color: #fff;
-            align-self: flex-end;
-        }
+.user-message,
+.bot-message {
+    margin: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    max-width: 70%;
+}
 
-        .bot-message {
-            background-color: #f0f0f0;
-            color: #333;
-            align-self: flex-start;
-            white-space: pre-line; /* Preserve line breaks */
-        }
+.user-message {
+    background-color: #4CAF50;
+    color: #fff;
+    align-self: flex-end;
+}
 
-        #user-input {
-            padding: 10px;
-            display: flex;
-            justify-content: space-between;
-            border-top: 1px solid #ccc;
-        }
+.bot-message {
+    background-color: #f0f0f0;
+    color: #333;
+    align-self: flex-start;
+    white-space: pre-line;
+}
 
-        #user-input input {
-            flex-grow: 1;
-            padding: 8px;
-            border: none;
-            border-radius: 4px;
-            margin-right: 10px;
-        }
+#user-input {
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid #ccc;
+    border-radius: 0 0 10px 10px;
+}
 
-        #user-input button {
-            background-color: #4CAF50;
-            color: #fff;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-    </style>
+#user-input input {
+    flex-grow: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 4px;
+    margin-right: 10px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+#user-input button {
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#user-input button:hover {
+    background-color: #368c3e;
+}
+
+/* CSS for domain options container */
+#domain-options-container {
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-top: 1px solid #ccc;
+    display: none;
+}
+
+.domain-option {
+    cursor: pointer;
+    color: #4CAF50;
+    transition: color 0.3s ease;
+}
+
+.domain-option:hover {
+    color: #368c3e;
+}
+#submit-skills {
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#submit-skills:hover {
+    background-color: #368c3e;
+}
+
+
+   </style>
+
 </head>
+
 <body>
     <div id="chat-container">
-        <div id="chat-header">Chatbot</div>
+        <div id="chat-header">
+            <img src="../static/img/businessman.png" alt="Logo"> <!-- Replace 'your_logo.png' with the path to your logo -->
+            JobScout
+        </div>
         <div id="chat-messages">
             <!-- Chat messages will be displayed here -->
+        </div>
+        <div id="domain-options-container">
+            <div id="domain-options">
+                <span class="domain-option" onclick="sendSelectedDomain('Marketing')">1. Marketing</span><br>
+                <span class="domain-option" onclick="sendSelectedDomain('Software Developer')">2. Software
+                    Developer</span><br>
+                <span class="domain-option" onclick="sendSelectedDomain('Architect')">3. Architect</span><br>
+                <span class="domain-option" onclick="sendSelectedDomain('Management')">4. Management</span><br>
+                <span class="domain-option" onclick="sendSelectedDomain('Data Analyst/Scientist')">5. Data
+                    Analyst/Scientist</span><br>
+            </div>
         </div>
         <div id="user-input">
             <input type="text" id="user-message-input" placeholder="Type your message...">
@@ -99,56 +173,127 @@
     </div>
 
     <script>
-        function sendMessage() {
-            var userMessageInput = document.getElementById('user-message-input');
-            var userMessage = userMessageInput.value;
+    function sendMessage(message) {
+        var userMessageInput = document.getElementById('user-message-input');
+        var userMessage = message || userMessageInput.value;
 
-            // Append user message to chat messages
-            appendUserMessage(userMessage);
+        // Append user message to chat messages
+        appendUserMessage(userMessage);
 
-            // Clear the input field
+        // Clear the input field if user input is used
+        if (!message) {
             userMessageInput.value = '';
-
-            // Send the user message to the server for processing
-            sendUserMessageToServer(userMessage);
         }
 
-        function appendUserMessage(message) {
-            var chatMessages = document.getElementById('chat-messages');
-            var userMessageDiv = document.createElement('div');
-            userMessageDiv.className = 'user-message';
-            userMessageDiv.textContent = message;
-            chatMessages.appendChild(userMessageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
-        }
+        // Send the user message to the server for processing
+        sendUserMessageToServer(userMessage);
+    }
 
-        function appendBotMessage(message) {
-            var chatMessages = document.getElementById('chat-messages');
-            var botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'bot-message';
-            botMessageDiv.textContent = message;
-            chatMessages.appendChild(botMessageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
-        }
+    function toggleDomainOptions() {
+        var domainOptionsContainer = document.getElementById('domain-options-container');
+        domainOptionsContainer.style.display = 'block'; // Show domain options
+    }
 
-        function sendUserMessageToServer(message) {
-            // Send an AJAX request to the server (Flask) to get the bot's response
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/chat', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    // Parse the JSON response from the server
-                    var jsonResponse = JSON.parse(xhr.responseText);
-                    var botResponse = jsonResponse.bot_response;
+    function appendUserMessage(message) {
+        var chatMessages = document.getElementById('chat-messages');
+        var userMessageDiv = document.createElement('div');
+        userMessageDiv.className = 'user-message';
+        userMessageDiv.textContent = message;
+        chatMessages.appendChild(userMessageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+    }
 
-                    // Append the bot's response to chat messages
-                    appendBotMessage(botResponse);
+    function appendBotMessage(message) {
+        var chatMessages = document.getElementById('chat-messages');
+        var botMessageDiv = document.createElement('div');
+        botMessageDiv.className = 'bot-message';
+        botMessageDiv.innerHTML = message; // Use innerHTML instead of textContent to allow HTML rendering
+        chatMessages.appendChild(botMessageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+
+        // Add event listener to submit button
+        var submitButton = botMessageDiv.querySelector('#submit-skills');
+        if (submitButton) {
+    submitButton.addEventListener('click', function() {
+        var selectedSkills = [];
+        // Find all checked skills
+        var skillCheckboxes = botMessageDiv.querySelectorAll('.skill-option');
+        skillCheckboxes.forEach(function(checkbox) {
+            if (checkbox.checked) {
+                selectedSkills.push(checkbox.value);
+            }
+        });
+        // Send selected skills as an array
+        sendSelectedSkills(selectedSkills);
+    });
+}
+
+    }
+
+    function sendUserMessageToServer(message) {
+        // Send an AJAX request to the server (Flask) to get the bot's response
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/chat', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                // Parse the JSON response from the server
+                var jsonResponse = JSON.parse(xhr.responseText);
+                var botResponse = jsonResponse.bot_response;
+
+                // Append the bot's response to chat messages
+                appendBotMessage(botResponse);
+
+                // If bot response contains domain selection options, show them
+                if (botResponse.includes('Select which domain you are interested to work in:')) {
+                    toggleDomainOptions();
                 }
-            };
-            // Send the user message to the server
-            xhr.send('user_message=' + encodeURIComponent(message));
+            }
+        };
+        // Send the user message to the server
+        xhr.send('user_message=' + encodeURIComponent(message));
+    }
+
+    // Function to send the selected domain as the user's message
+    function sendSelectedDomain(domain) {
+    // Append the selected domain to chat messages
+    appendUserMessage(domain);
+
+    // Hide the domain options container
+    var domainOptionsContainer = document.getElementById('domain-options-container');
+    domainOptionsContainer.style.display = 'none';
+
+    // Send the selected domain to the server for processing
+    sendUserMessageToServer(domain);
+}
+
+function sendSelectedSkills(selectedSkills) {
+    // Append the selected skills to chat messages
+    var selectedSkillsText = selectedSkills.join(', ');
+    appendUserMessage(selectedSkillsText);
+
+    // Send an AJAX request to the server (Flask) to submit the selected skills
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/submit_skills', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            // Parse the JSON response from the server
+            var jsonResponse = JSON.parse(xhr.responseText);
+            var botResponse = jsonResponse.bot_response;
+
+            // Append the bot's response to chat messages
+            appendBotMessage(botResponse);
         }
-    </script>
+    };
+    // Send the selected skills array to the server
+    xhr.send(JSON.stringify({ selected_skill: selectedSkills }));
+}
+
+</script>
+
+
+
 </body>
+
 </html>
