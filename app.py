@@ -121,8 +121,8 @@ def home():
 def chat():
     global selected_domain, selected_skills
 
-    user_message = request.form.get('user_message')
-
+    user_message = request.form.get('user_message') 
+    resume_file = request.files.get('resume_file')
     # Default bot response
     bot_response = "I'm sorry, I didn't understand that."
 

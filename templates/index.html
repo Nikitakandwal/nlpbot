@@ -109,6 +109,45 @@
 #user-input button:hover {
     background-color: #368c3e;
 }
+/* Style for the file upload container */
+.file-upload {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+/* Style for the choose file button */
+.file-upload input[type='file'] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
+/* Style for the choose file button */
+.file-upload {
+    display: inline-block;
+    padding: 8px; /* Keep padding the same for both height and width to create a circular shape */
+    background-color: #4CAF50;
+    color: #fff;
+    border-radius: 50%; /* Make the border-radius 50% to create a circular shape */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.file-upload:hover {
+    background-color: #368c3e;
+}
+
+/* Hide the actual file input */
+.file-upload input[type=file] {
+    display: none;
+}
+
+
 
 /* CSS for domain options container */
 #domain-options-container {
@@ -168,11 +207,150 @@
         </div>
         <div id="user-input">
             <input type="text" id="user-message-input" placeholder="Type your message...">
+            <label class="file-upload">
+                <input type="file" id="resume-upload" accept=".pdf,.doc,.docx" onchange="handleFileUpload()">
+                Choose file
+            </label>
             <button onclick="sendMessage()">Send</button>
         </div>
+        
+        
     </div>
 
     <script>
+        function sendMessage(message) {
+            var userMessageInput = document.getElementById('user-message-input');
+            var userMessage = message || userMessageInput.value;
+    
+            // Append user message to chat messages
+            appendUserMessage(userMessage);
+    
+            // Clear the input field if user input is used
+            if (!message) {
+                userMessageInput.value = '';
+            }
+    
+            // Send the user message to the server for processing
+            sendUserMessageToServer(userMessage);
+        }
+    
+        function toggleDomainOptions() {
+            var domainOptionsContainer = document.getElementById('domain-options-container');
+            domainOptionsContainer.style.display = 'block'; // Show domain options
+        }
+    
+        function appendUserMessage(message) {
+            var chatMessages = document.getElementById('chat-messages');
+            var userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'user-message';
+            userMessageDiv.textContent = message;
+            chatMessages.appendChild(userMessageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+        }
+    
+        function appendBotMessage(message) {
+            var chatMessages = document.getElementById('chat-messages');
+            var botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'bot-message';
+            botMessageDiv.innerHTML = message; // Use innerHTML instead of textContent to allow HTML rendering
+            chatMessages.appendChild(botMessageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+    
+            // Add event listener to submit button
+            var submitButton = botMessageDiv.querySelector('#submit-skills');
+            if (submitButton) {
+        submitButton.addEventListener('click', function() {
+            var selectedSkills = [];
+            // Find all checked skills
+            var skillCheckboxes = botMessageDiv.querySelectorAll('.skill-option');
+            skillCheckboxes.forEach(function(checkbox) {
+                if (checkbox.checked) {
+                    selectedSkills.push(checkbox.value);
+                }
+            });
+            // Send selected skills as an array
+            sendSelectedSkills(selectedSkills);
+        });
+    }
+    
+        }
+    
+        function sendUserMessageToServer(message) {
+            // Send an AJAX request to the server (Flask) to get the bot's response
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/chat', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Parse the JSON response from the server
+                    var jsonResponse = JSON.parse(xhr.responseText);
+                    var botResponse = jsonResponse.bot_response;
+    
+                    // Append the bot's response to chat messages
+                    appendBotMessage(botResponse);
+    
+                    // If bot response contains domain selection options, show them
+                    if (botResponse.includes('Select which domain you are interested to work in:')) {
+                        toggleDomainOptions();
+                    }
+                }
+            };
+            // Send the user message to the server
+            xhr.send('user_message=' + encodeURIComponent(message));
+        }
+    
+        // Function to send the selected domain as the user's message
+        function sendSelectedDomain(domain) {
+        // Append the selected domain to chat messages
+        appendUserMessage(domain);
+    
+        // Hide the domain options container
+        var domainOptionsContainer = document.getElementById('domain-options-container');
+        domainOptionsContainer.style.display = 'none';
+    
+        // Send the selected domain to the server for processing
+        sendUserMessageToServer(domain);
+    }
+    
+    function sendSelectedSkills(selectedSkills) {
+        // Append the selected skills to chat messages
+        var selectedSkillsText = selectedSkills.join(', ');
+        appendUserMessage(selectedSkillsText);
+    
+        // Send an AJAX request to the server (Flask) to submit the selected skills
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/submit_skills', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                // Parse the JSON response from the server
+                var jsonResponse = JSON.parse(xhr.responseText);
+                var botResponse = jsonResponse.bot_response;
+    
+                // Append the bot's response to chat messages
+                appendBotMessage(botResponse);
+            }
+        };
+        // Send the selected skills array to the server
+        xhr.send(JSON.stringify({ selected_skill: selectedSkills }));
+    }
+    function handleFileUpload() {
+    var fileInput = document.getElementById('resume-upload');
+    var fileName = fileInput.files[0].name;
+    var chatMessages = document.getElementById('chat-messages');
+
+    // Append file message to chat messages
+    appendUserMessage(fileName);
+
+    // Clear the file input field
+    fileInput.value = '';
+}
+
+    
+    
+    </script>
+
+    <!-- <script>
     function sendMessage(message) {
         var userMessageInput = document.getElementById('user-message-input');
         var userMessage = message || userMessageInput.value;
@@ -290,7 +468,8 @@ function sendSelectedSkills(selectedSkills) {
     xhr.send(JSON.stringify({ selected_skill: selectedSkills }));
 }
 
-</script>
+
+</script> -->
 
 
 
